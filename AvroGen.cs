@@ -23,7 +23,7 @@ namespace Avro.codegen
     class AvroGen
     {
         static void Main(string[] args)
-        {
+        { 
             if (args.Length != 3)
             {
                 Usage();
