@@ -20,6 +20,7 @@ using System;
 
 namespace Avro.codegen
 {
+
     class AvroGen
     {
         static void Main(string[] args)
