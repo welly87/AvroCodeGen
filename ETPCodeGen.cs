@@ -18,32 +18,11 @@ namespace Avro.codegen
 
             ctd.Attributes = MemberAttributes.Public;
             ctd.IsClass = true;
-            //ctd.IsPartial = true;
 
-            //createSchemaField(schema, ctd, isError);
+            if (recordSchema.Name == "ChannelMetadataRecord")
+            {
 
-            // declare Get() to be used by the Writer classes
-            //var cmmGet = new CodeMemberMethod();
-            //cmmGet.Name = "Get";
-            //cmmGet.Attributes = MemberAttributes.Public;
-            //cmmGet.ReturnType = new CodeTypeReference("System.Object");
-            //cmmGet.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "fieldPos"));
-            //StringBuilder getFieldStmt = new StringBuilder("switch (fieldPos)\n\t\t\t{\n");
-
-            //// declare Put() to be used by the Reader classes
-            //var cmmPut = new CodeMemberMethod();
-            //cmmPut.Name = "Put";
-            //cmmPut.Attributes = MemberAttributes.Public;
-            //cmmPut.ReturnType = new CodeTypeReference(typeof(void));
-            //cmmPut.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "fieldPos"));
-            //cmmPut.Parameters.Add(new CodeParameterDeclarationExpression("System.Object", "fieldValue"));
-            //var putFieldStmt = new StringBuilder("switch (fieldPos)\n\t\t\t{\n");
-
-            //if (isError)
-            //{
-            //    cmmGet.Attributes |= MemberAttributes.Override;
-            //    cmmPut.Attributes |= MemberAttributes.Override;
-            //}
+            }
 
             foreach (Field field in recordSchema.Fields)
             {
@@ -51,49 +30,22 @@ namespace Avro.codegen
                 bool nullibleEnum = false;
                 string baseType = getType(field.Schema, false, ref nullibleEnum);
                 var ctrfield = new CodeTypeReference(baseType);
-                
-                // Create field
-                string privFieldName = string.Concat("_", field.Name);
-                var codeField = new CodeMemberField(ctrfield, privFieldName);
-                codeField.Attributes = MemberAttributes.Private;
-                
-                // Process field documentation if it exist and add to the field
-                CodeCommentStatement propertyComment = null;
-                if (!string.IsNullOrEmpty(field.Documentation))
-                {
-                    propertyComment = createDocComment(field.Documentation);
-                    
-                    if (null != propertyComment)
-                        codeField.Comments.Add(propertyComment);
-                }
-                
-                // Add field to class
-                ctd.Members.Add(codeField);
 
-                // Create reference to the field - this.fieldname
-                var fieldRef = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), privFieldName);
                 var mangledName = CodeGenUtil.Instance.Mangle(field.Name);
+                CodeSnippetTypeMember snippet = new CodeSnippetTypeMember();
 
-                // Create field property with get and set methods
-                var property = new CodeMemberProperty();
-                
-                property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-                property.Name = mangledName.FirstCharToUpper();
-                property.Type = ctrfield;
-                
-                property.GetStatements.Add(new CodeMethodReturnStatement(fieldRef));
-                property.SetStatements.Add(new CodeAssignStatement(fieldRef, new CodePropertySetValueReferenceExpression()));
-                
-               
-
+                StringBuilder propertyBuilder = new StringBuilder();
                 if (field.Schema.Tag == Schema.Type.Union)
                 {
                     var unionSchemas = field.Schema as UnionSchema;
 
                     var unionAttributes = new CodeAttributeArgument[unionSchemas.Schemas.Count];
-
+                    
+                    propertyBuilder.Append("        [AvroUnion(");
                     for (int i = 0; i < unionSchemas.Count; i++)
                     {
+                        var something = unionSchemas.Schemas[i];
+
                         var typeName = unionSchemas.Schemas[i].Name;
 
                         if (typeName == "null")
@@ -109,64 +61,35 @@ namespace Avro.codegen
                             typeName = "bool";
                         }
 
-                        unionAttributes[i] = new CodeAttributeArgument(new CodeSnippetExpression(string.Format("typeof({0})", typeName)));
+                        if (something.Tag == Schema.Type.Record)
+                        {
+                            var rschema = something as RecordSchema;
+
+                            if (rschema.Namespace != recordSchema.Namespace)
+                                typeName = rschema.Fullname;
+                        }
+
+                        propertyBuilder.Append(string.Format("typeof({0})", typeName));
+
+                        if (i < unionSchemas.Count - 1)
+                        {
+                            propertyBuilder.Append(", ");
+                        }
+                        //var snpt = new CodeSnippetExpression(string.Format("typeof({0})", typeName));
                     }
-
-                    property.CustomAttributes = new CodeAttributeDeclarationCollection(new[] { new CodeAttributeDeclaration("AvroUnion", unionAttributes) });
-                    //property.CustomAttributes = new CodeAttributeDeclarationCollection(new[] { new CodeAttributeDeclaration("AvroUnion2", unionAttributes) });
+                    propertyBuilder.AppendLine(")]");
                 }
-                
-                if (null != propertyComment)
-                    property.Comments.Add(propertyComment);
 
-                // Add field property to class
-                ctd.Members.Add(property);
+                //snippet.Comments.Add(new CodeCommentStatement("this is integer property", true));
+                propertyBuilder.AppendLine("        public " + baseType + " " + mangledName.FirstCharToUpper() + "{ get; set; }\n");
+                snippet.Text = propertyBuilder.ToString();
+                //snippet.Text = "        public "+ baseType + " " + mangledName.FirstCharToUpper()  + "{ get; set; }\n";
+                //snippet.Text = string.Format("public {0} {1} { get; set; }", baseType, mangledName.FirstCharToUpper());
 
-                //// add to Get()
-                //getFieldStmt.Append("\t\t\tcase ");
-                //getFieldStmt.Append(field.Pos);
-                //getFieldStmt.Append(": return this.");
-                //getFieldStmt.Append(privFieldName);
-                //getFieldStmt.Append(";\n");
-
-                //// add to Put()
-                //putFieldStmt.Append("\t\t\tcase ");
-                //putFieldStmt.Append(field.Pos);
-                //putFieldStmt.Append(": this.");
-                //putFieldStmt.Append(privFieldName);
-
-                //if (nullibleEnum)
-                //{
-                //    putFieldStmt.Append(" = fieldValue == null ? (");
-                //    putFieldStmt.Append(baseType);
-                //    putFieldStmt.Append(")null : (");
-
-                //    string type = baseType.Remove(0, 16);  // remove System.Nullable<
-                //    type = type.Remove(type.Length - 1);   // remove >
-
-                //    putFieldStmt.Append(type);
-                //    putFieldStmt.Append(")fieldValue; break;\n");
-                //}
-                //else
-                //{
-                //    putFieldStmt.Append(" = (");
-                //    putFieldStmt.Append(baseType);
-                //    putFieldStmt.Append(")fieldValue; break;\n");
-                //}
+                ctd.Members.Add(snippet);
+               
             }
-
-            // end switch block for Get()
-            //getFieldStmt.Append("\t\t\tdefault: throw new AvroRuntimeException(\"Bad index \" + fieldPos + \" in Get()\");\n\t\t\t}");
-            //var cseGet = new CodeSnippetExpression(getFieldStmt.ToString());
-            //cmmGet.Statements.Add(cseGet);
-            //ctd.Members.Add(cmmGet);
-
-            //// end switch block for Put()
-            //putFieldStmt.Append("\t\t\tdefault: throw new AvroRuntimeException(\"Bad index \" + fieldPos + \" in Put()\");\n\t\t\t}");
-            //var csePut = new CodeSnippetExpression(putFieldStmt.ToString());
-            //cmmPut.Statements.Add(csePut);
-            //ctd.Members.Add(cmmPut);
-
+            
             string nspace = recordSchema.Namespace;
             if (string.IsNullOrEmpty(nspace))
                 throw new CodeGenException("Namespace required for record schema " + recordSchema.Name);

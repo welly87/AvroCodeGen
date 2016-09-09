@@ -705,13 +705,13 @@ namespace Avro.codegen
                     if (null == arraySchema)
                         throw new CodeGenException("Unable to cast schema into an array schema");
 
-                    return "IList<" + getType(arraySchema.ItemSchema, false, ref nullibleEnum) + ">";
+                    return "List<" + getType(arraySchema.ItemSchema, false, ref nullibleEnum) + ">";
 
                 case Schema.Type.Map:
                     var mapSchema = schema as MapSchema;
                     if (null == mapSchema)
                         throw new CodeGenException("Unable to cast schema into a map schema");
-                    return "IDictionary<string," + getType(mapSchema.ValueSchema, false, ref nullibleEnum) + ">";
+                    return "Dictionary<string," + getType(mapSchema.ValueSchema, false, ref nullibleEnum) + ">";
 
                 case Schema.Type.Union:
                     var unionSchema = schema as UnionSchema;
