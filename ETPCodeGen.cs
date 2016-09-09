@@ -19,11 +19,6 @@ namespace Avro.codegen
             ctd.Attributes = MemberAttributes.Public;
             ctd.IsClass = true;
 
-            if (recordSchema.Name == "ChannelMetadataRecord")
-            {
-
-            }
-
             foreach (Field field in recordSchema.Fields)
             {
                 // Determine type of field
