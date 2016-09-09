@@ -43,8 +43,7 @@ namespace Avro.codegen
                 new CodeNamespaceImport("System"),
                 new CodeNamespaceImport("System.Collections.Generic"),
                 new CodeNamespaceImport("System.Text"),
-                new CodeNamespaceImport("Avro"),
-                new CodeNamespaceImport("Avro.Specific") };
+                new CodeNamespaceImport("Microsoft.Hadoop.Avro") };
 
             FileComment = new CodeCommentStatement(
 @"------------------------------------------------------------------------------

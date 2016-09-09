@@ -158,7 +158,7 @@ namespace Avro.codegen
                     }
                 }
 
-                processInterface(protocol);
+                //processInterface(protocol);
             }
         }
 
@@ -256,12 +256,12 @@ namespace Avro.codegen
             CodeTypeDeclaration ctd = new CodeTypeDeclaration();
             ctd.Name = CodeGenUtil.Instance.Mangle(fixedSchema.Name);
             ctd.IsClass = true;
-            ctd.IsPartial = true;
+            //ctd.IsPartial = true;
             ctd.Attributes = MemberAttributes.Public;
-            ctd.BaseTypes.Add("SpecificFixed");
+            //ctd.BaseTypes.Add("SpecificFixed");
 
             // create static schema field
-            createSchemaField(schema, ctd, true);
+            //createSchemaField(schema, ctd, true);
 
             // Add Size field
             string sizefname = "fixedSize";
@@ -323,100 +323,100 @@ namespace Avro.codegen
             codens.Types.Add(ctd);
         }
 
-        protected virtual void processInterface(Protocol protocol)
-        {
-            // Create abstract class
-            string protocolNameMangled = CodeGenUtil.Instance.Mangle(protocol.Name);
+        //protected virtual void processInterface(Protocol protocol)
+        //{
+        //    // Create abstract class
+        //    string protocolNameMangled = CodeGenUtil.Instance.Mangle(protocol.Name);
 
-            var ctd = new CodeTypeDeclaration(protocolNameMangled);
-            ctd.TypeAttributes = TypeAttributes.Abstract | TypeAttributes.Public;
-            ctd.IsClass = true;
-            ctd.BaseTypes.Add("Avro.Specific.ISpecificProtocol");
+        //    var ctd = new CodeTypeDeclaration(protocolNameMangled);
+        //    ctd.TypeAttributes = TypeAttributes.Abstract | TypeAttributes.Public;
+        //    ctd.IsClass = true;
+        //    ctd.BaseTypes.Add("Avro.Specific.ISpecificProtocol");
 
-            AddProtocolDocumentation(protocol, ctd);
+        //    AddProtocolDocumentation(protocol, ctd);
 
-            // Add static protocol field.
-            var protocolField = new CodeMemberField();
-            protocolField.Attributes = MemberAttributes.Private | MemberAttributes.Static | MemberAttributes.Final;
-            protocolField.Name = "protocol";
-            protocolField.Type = new CodeTypeReference("readonly Avro.Protocol");
+        //    // Add static protocol field.
+        //    var protocolField = new CodeMemberField();
+        //    protocolField.Attributes = MemberAttributes.Private | MemberAttributes.Static | MemberAttributes.Final;
+        //    protocolField.Name = "protocol";
+        //    protocolField.Type = new CodeTypeReference("readonly Avro.Protocol");
 
-            var cpe = new CodePrimitiveExpression(protocol.ToString());
-            var cmie = new CodeMethodInvokeExpression(
-                new CodeMethodReferenceExpression(new CodeTypeReferenceExpression(typeof(Protocol)), "Parse"),
-                new CodeExpression[] { cpe });
+        //    var cpe = new CodePrimitiveExpression(protocol.ToString());
+        //    var cmie = new CodeMethodInvokeExpression(
+        //        new CodeMethodReferenceExpression(new CodeTypeReferenceExpression(typeof(Protocol)), "Parse"),
+        //        new CodeExpression[] { cpe });
 
-            protocolField.InitExpression = cmie;
+        //    protocolField.InitExpression = cmie;
 
-            ctd.Members.Add(protocolField);
+        //    ctd.Members.Add(protocolField);
 
-            // Add overridden Protocol method.
-            var property = new CodeMemberProperty();
-            property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
-            property.Name = "Protocol";
-            property.Type = new CodeTypeReference("Avro.Protocol");
-            property.HasGet = true;
+        //    // Add overridden Protocol method.
+        //    var property = new CodeMemberProperty();
+        //    property.Attributes = MemberAttributes.Public | MemberAttributes.Final;
+        //    property.Name = "Protocol";
+        //    property.Type = new CodeTypeReference("Avro.Protocol");
+        //    property.HasGet = true;
 
 
-            property.GetStatements.Add(new CodeTypeReferenceExpression("return protocol"));
-            ctd.Members.Add(property);
+        //    property.GetStatements.Add(new CodeTypeReferenceExpression("return protocol"));
+        //    ctd.Members.Add(property);
 
-            //var requestMethod = CreateRequestMethod();
-            //ctd.Members.Add(requestMethod);
+        //    //var requestMethod = CreateRequestMethod();
+        //    //ctd.Members.Add(requestMethod);
 
-            var requestMethod = CreateRequestMethod();
-            //requestMethod.Attributes |= MemberAttributes.Override;
-            var builder = new StringBuilder();
+        //    var requestMethod = CreateRequestMethod();
+        //    //requestMethod.Attributes |= MemberAttributes.Override;
+        //    var builder = new StringBuilder();
 
-            if (protocol.Messages.Count > 0)
-            {
-                builder.Append("switch(messageName)\n\t\t\t{");
+        //    if (protocol.Messages.Count > 0)
+        //    {
+        //        builder.Append("switch(messageName)\n\t\t\t{");
 
-                foreach (var a in protocol.Messages)
-                {
-                    builder.Append("\n\t\t\t\tcase \"").Append(a.Key).Append("\":\n");
+        //        foreach (var a in protocol.Messages)
+        //        {
+        //            builder.Append("\n\t\t\t\tcase \"").Append(a.Key).Append("\":\n");
 
-                    bool unused = false;
-                    string type = getType(a.Value.Response, false, ref unused);
+        //            bool unused = false;
+        //            string type = getType(a.Value.Response, false, ref unused);
 
-                    builder.Append("\t\t\t\trequestor.Request<")
-                           .Append(type)
-                           .Append(">(messageName, args, callback);\n");
-                    builder.Append("\t\t\t\tbreak;\n");
-                }
+        //            builder.Append("\t\t\t\trequestor.Request<")
+        //                   .Append(type)
+        //                   .Append(">(messageName, args, callback);\n");
+        //            builder.Append("\t\t\t\tbreak;\n");
+        //        }
 
-                builder.Append("\t\t\t}");
-            }
-            var cseGet = new CodeSnippetExpression(builder.ToString());
+        //        builder.Append("\t\t\t}");
+        //    }
+        //    var cseGet = new CodeSnippetExpression(builder.ToString());
 
-            requestMethod.Statements.Add(cseGet);
-            ctd.Members.Add(requestMethod);
+        //    requestMethod.Statements.Add(cseGet);
+        //    ctd.Members.Add(requestMethod);
 
-            AddMethods(protocol, false, ctd);
+        //    AddMethods(protocol, false, ctd);
 
-            string nspace = protocol.Namespace;
-            if (string.IsNullOrEmpty(nspace))
-                throw new CodeGenException("Namespace required for enum schema " + nspace);
-            CodeNamespace codens = addNamespace(nspace);
+        //    string nspace = protocol.Namespace;
+        //    if (string.IsNullOrEmpty(nspace))
+        //        throw new CodeGenException("Namespace required for enum schema " + nspace);
+        //    CodeNamespace codens = addNamespace(nspace);
 
-            codens.Types.Add(ctd);
+        //    codens.Types.Add(ctd);
 
-            // Create callback abstract class
-            ctd = new CodeTypeDeclaration(protocolNameMangled + "Callback");
-            ctd.TypeAttributes = TypeAttributes.Abstract | TypeAttributes.Public;
-            ctd.IsClass = true;
-            ctd.BaseTypes.Add(protocolNameMangled);
+        //    // Create callback abstract class
+        //    ctd = new CodeTypeDeclaration(protocolNameMangled + "Callback");
+        //    ctd.TypeAttributes = TypeAttributes.Abstract | TypeAttributes.Public;
+        //    ctd.IsClass = true;
+        //    ctd.BaseTypes.Add(protocolNameMangled);
 
-            // Need to override
+        //    // Need to override
             
 
 
-            AddProtocolDocumentation(protocol, ctd);
+        //    AddProtocolDocumentation(protocol, ctd);
 
-            AddMethods(protocol, true, ctd);
+        //    AddMethods(protocol, true, ctd);
 
-            codens.Types.Add(ctd);
-        }
+        //    codens.Types.Add(ctd);
+        //}
 
         private static CodeMemberMethod CreateRequestMethod()
         {
@@ -527,7 +527,7 @@ namespace Avro.codegen
             ctd.IsClass = true;
             ctd.IsPartial = true;
 
-            createSchemaField(schema, ctd, isError);
+            //createSchemaField(schema, ctd, isError);
 
             // declare Get() to be used by the Writer classes
             var cmmGet = new CodeMemberMethod();
@@ -755,31 +755,31 @@ namespace Avro.codegen
         /// </summary>
         /// <param name="schema">schema</param>
         /// <param name="ctd">CodeTypeDeclaration for the class</param>
-        protected virtual void createSchemaField(Schema schema, CodeTypeDeclaration ctd, bool overrideFlag)
-        {
-            // create schema field 
-            var ctrfield = new CodeTypeReference("Schema");
-            string schemaFname = "_SCHEMA";
-            var codeField = new CodeMemberField(ctrfield, schemaFname);
-            codeField.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-            // create function call Schema.Parse(json)
-            var cpe = new CodePrimitiveExpression(schema.ToString());
-            var cmie = new CodeMethodInvokeExpression(
-                new CodeMethodReferenceExpression(new CodeTypeReferenceExpression(typeof(Schema)), "Parse"),
-                new CodeExpression[] { cpe });
-            codeField.InitExpression = cmie;
-            ctd.Members.Add(codeField);
+        //protected virtual void createSchemaField(Schema schema, CodeTypeDeclaration ctd, bool overrideFlag)
+        //{
+        //    // create schema field 
+        //    var ctrfield = new CodeTypeReference("Schema");
+        //    string schemaFname = "_SCHEMA";
+        //    var codeField = new CodeMemberField(ctrfield, schemaFname);
+        //    codeField.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+        //    // create function call Schema.Parse(json)
+        //    var cpe = new CodePrimitiveExpression(schema.ToString());
+        //    var cmie = new CodeMethodInvokeExpression(
+        //        new CodeMethodReferenceExpression(new CodeTypeReferenceExpression(typeof(Schema)), "Parse"),
+        //        new CodeExpression[] { cpe });
+        //    codeField.InitExpression = cmie;
+        //    ctd.Members.Add(codeField);
 
-            // create property to get static schema field
-            var property = new CodeMemberProperty();
-            property.Attributes = MemberAttributes.Public;
-            if (overrideFlag) property.Attributes |= MemberAttributes.Override;
-            property.Name = "Schema";
-            property.Type = ctrfield;
+        //    // create property to get static schema field
+        //    var property = new CodeMemberProperty();
+        //    property.Attributes = MemberAttributes.Public;
+        //    if (overrideFlag) property.Attributes |= MemberAttributes.Override;
+        //    property.Name = "Schema";
+        //    property.Type = ctrfield;
 
-            property.GetStatements.Add(new CodeMethodReturnStatement(new CodeTypeReferenceExpression(ctd.Name + "." + schemaFname)));
-            ctd.Members.Add(property);
-        }
+        //    property.GetStatements.Add(new CodeMethodReturnStatement(new CodeTypeReferenceExpression(ctd.Name + "." + schemaFname)));
+        //    ctd.Members.Add(property);
+        //}
 
         /// <summary>
         /// Creates an XML documentation for the given comment

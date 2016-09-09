@@ -159,6 +159,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Avro.snk" />
+    <None Include="etp.avpr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
