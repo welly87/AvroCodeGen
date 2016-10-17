@@ -76,7 +76,7 @@ namespace Avro.codegen
                 }
 
                 //snippet.Comments.Add(new CodeCommentStatement("this is integer property", true));
-                propertyBuilder.AppendLine("        public " + baseType + " " + mangledName.FirstCharToUpper() + "{ get; set; }\n");
+                propertyBuilder.AppendLine("            public " + baseType + " " + mangledName.FirstCharToUpper() + " { get; set; }\n");
                 snippet.Text = propertyBuilder.ToString();
                 //snippet.Text = "        public "+ baseType + " " + mangledName.FirstCharToUpper()  + "{ get; set; }\n";
                 //snippet.Text = string.Format("public {0} {1} { get; set; }", baseType, mangledName.FirstCharToUpper());
