@@ -159,6 +159,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Avro.snk" />
+    <None Include="sample.avpr">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="etp.avpr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

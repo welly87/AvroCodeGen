@@ -1,0 +1,34 @@
+{
+  "protocol": "ProtocolTest",
+  "namespace": "test",
+  "types": [
+    {
+      "type": "enum",
+      "name": "ProtocolPrivacy",
+      "symbols": [ "Public", "Private" ]
+    },
+    {
+      "type": "record",
+      "namespace": "test",
+      "name": "ProtocolUser",
+      "doc": "User Test Bean",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "default": null
+        },
+        {
+          "name": "createdOn",
+          "type": "long",
+          "default": null
+        },
+        {
+          "name": "privacy",
+          "type": "ProtocolPrivacy",
+          "default": null
+        }
+      ]
+    }
+  ]
+}
