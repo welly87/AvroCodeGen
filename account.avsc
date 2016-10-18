@@ -1,0 +1,9 @@
+﻿{
+  "namespace": "example.avro",
+  "type": "record",
+  "name": "Account",
+  "fields": [
+    { "name": "account", "type": "example.avro.User" },
+    { "name": "favorite_number", "type": "int" }
+  ]
+}

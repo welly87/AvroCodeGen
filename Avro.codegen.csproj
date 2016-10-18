@@ -159,13 +159,19 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Avro.snk" />
-    <None Include="sample.avpr">
+    <None Include="some.avpr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="etp.avpr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="account.avsc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="user.avsc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
