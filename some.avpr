@@ -1,6 +1,6 @@
 {
-  "namespace": "Energistics",
-  "protocol": "Etp",
+  "namespace": "geekseat",
+  "protocol": "messagebus",
   "version": "1.0",
   "types": [
     {
@@ -8,18 +8,9 @@
       "type": "record",
       "name": "User",
       "fields": [
-        {
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "name": "favorite_number",
-          "type": "int"
-        },
-        {
-          "name": "favorite_color",
-          "type": "string"
-        }
+        { "name": "name", "type": "string" },
+        { "name": "favorite_number", "type": "int" },
+        { "name": "favorite_color", "type": "string" }
       ]
     },
     {
@@ -34,6 +25,10 @@
         {
           "name": "favorite_number",
           "type": "int"
+        },
+        {
+          "name": "favorite_number2",
+          "type": {"type": "array", "items": "string"}
         }
       ]
     }
